@@ -1,0 +1,13 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+}
+#blogPostsList div {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.edit-btn, .delete-btn {
+    margin-left: 10px;
+    cursor: pointer;
+}
