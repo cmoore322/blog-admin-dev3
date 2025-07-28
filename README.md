@@ -2,7 +2,7 @@
 
 ## Overview
 
-**This Blog Admin** is a web-based admin panel for managing blog posts. Extra-credit opportunities were taken by implementing search and sort feayurs along with a bs5 modal.
+**This Blog Admin** is a web-based admin panel for managing blog posts. Extra-credit opportunities were taken by implementing search and sort features along with a bs5 modal.
 
 ## Features
 
