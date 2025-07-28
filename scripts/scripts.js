@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('refreshDataBtn').addEventListener('click', fetchBlogData);
     document.getElementById('addPostForm').addEventListener('submit', handleAddPost);
     document.getElementById('goToBlogBtn').addEventListener('click', () => {
-        window.location.href = 'https://your-dev-profile.github.io/your-blog-section-path';
+        window.location.href = 'https://github.com/cmoore322';
     });
     document.getElementById('searchInput').addEventListener('input', e => {
         searchTerm = e.target.value.toLowerCase();
