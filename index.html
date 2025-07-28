@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog Admin</title>
+    <link rel="stylesheet" href="styles/style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1 class="my-4">Connor's Blog!</h1>
+        <div class="mb-3">
+            <button id="refreshDataBtn" class="btn btn-primary">Refresh Blog Data</button>
+            <button id="goToBlogBtn" class="btn btn-secondary">Go to Blog Profile</button>
+        </div>
+        <h2>Add New Blog Post</h2>
+        <form id="addPostForm" class="mb-4">
+            <div class="row">
+                <div class="mb-3 col-md-6">
+                    <label for="postTitle" class="form-label">Title:</label>
+                    <input type="text" id="postTitle" class="form-control" required>
+                </div>
+                <div class="mb-3 col-md-6">
+                    <label for="postAuthor" class="form-label">Author:</label>
+                    <input type="text" id="postAuthor" class="form-control" required>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="postDate" class="form-label">Date (YYYY-MM-DD):</label>
+                <input type="date" id="postDate" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="postContent" class="form-label">Content:</label>
+                <textarea id="postContent" class="form-control" rows="5" required></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="postTags" class="form-label">Tags (comma-separated):</label>
+                <input type="text" id="postTags" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-success">Add Post</button>
+        </form>
+        <h2>Existing Blog Posts</h2>
+        <div id="blogPostsList" class="mb-4"></div>
+        <a href="https://github.com/cmoore322/blog-admin-dev3" target="_blank" id="openAdminBtn" class="btn btn-info">Open Blog Admin</a>
+        <div id="blogPosts"></div>
+        <div class="mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by title or content">
+        </div>
+        <div class="mb-3 d-flex gap-2">
+            <select id="sortSelect" class="form-select w-auto">
+                <option value="date-desc">Sort by Date (Newest)</option>
+                <option value="date-asc">Sort by Date (Oldest)</option>
+                <option value="title-asc">Sort by Title (A-Z)</option>
+                <option value="title-desc">Sort by Title (Z-A)</option>
+            </select>
+            <input type="text" id="filterTagInput" class="form-control w-auto" placeholder="Filter by tag">
+        </div>
+    </div>
+    <div class="modal fade" id="postModal" tabindex="-1" aria-labelledby="postModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="postModalLabel">Post Details</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" id="postModalBody"></div>
+        </div>
+      </div>
+    </div>
+    <script src="scripts/scripts.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

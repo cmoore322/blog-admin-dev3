@@ -1,0 +1,41 @@
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    background: url('../images/Shiny Overlay.svg') no-repeat center center fixed;
+    background-size: cover;
+    color: #fffbe6;
+}
+
+h1, h2, h3, h4, h5, h6, label, .form-label {
+    color: #fffbe6 !important;
+}
+
+.form-control, .form-select {
+    background-color: rgba(30, 30, 30, 0.85) !important;
+    color: #fffbe6 !important;
+    border: 1px solid #ccc;
+}
+
+.form-control::placeholder {
+    color: #e6e1c5 !important;
+    opacity: 1;
+}
+
+.btn {
+    color: #fffbe6 !important;
+}
+
+#blogPostsList div {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.edit-btn, .delete-btn {
+    margin-left: 10px;
+    cursor: pointer;
+}
+
+#blogPostsList, #blogPostsList * {
+    color: #fffbe6 !important;
+}
