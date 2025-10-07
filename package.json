@@ -2,10 +2,11 @@
   "name": "blog-admin-dev3",
   "version": "1.0.0",
   "description": "Blog Admin SPA + Node/Express/MongoDB RESTful API",
-  "main": "server.js",
+  "type": "module",
+  "main": "app.mjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node app.mjs",
+    "dev": "nodemon app.mjs"
   },
   "author": "cmoore322",
   "license": "MIT",
