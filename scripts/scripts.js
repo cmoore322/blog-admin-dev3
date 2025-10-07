@@ -1,150 +1,120 @@
-const blogDataUrl = 'https://cmoore322.github.io/blog-json/blog.json';
-let blogPosts = [];
-let searchTerm = '';
-let sortOption = 'date-desc';
-let filterTag = '';
+// Cleaned and consolidated SPA client for Blog Admin
+// Uses: index.html elements (#post-form, #post-id, #title, #body, #save-btn, #reset-btn, #posts-list)
+
+const API = '/api/posts';
 
 document.addEventListener('DOMContentLoaded', () => {
-    fetchBlogData();
-    document.getElementById('refreshDataBtn').addEventListener('click', fetchBlogData);
-    document.getElementById('addPostForm').addEventListener('submit', handleAddPost);
-    document.getElementById('goToBlogBtn').addEventListener('click', () => {
-        window.location.href = 'https://github.com/cmoore322';
-    });
-    document.getElementById('searchInput').addEventListener('input', e => {
-        searchTerm = e.target.value.toLowerCase();
-        displayBlogPosts();
-    });
-    document.getElementById('sortSelect').addEventListener('change', e => {
-        sortOption = e.target.value;
-        displayBlogPosts();
-    });
-    document.getElementById('filterTagInput').addEventListener('input', e => {
-        filterTag = e.target.value.toLowerCase();
-        displayBlogPosts();
-    });
+  initForm();
+  loadPosts();
 });
 
-async function fetchBlogData() {
+function initForm() {
+  const form = document.getElementById('post-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('post-id').value || null;
+    const title = document.getElementById('title').value.trim();
+    const body = document.getElementById('body').value.trim();
+    const tagsEl = document.getElementById('tags');
+    const tags = tagsEl ? tagsEl.value.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    const payload = { title, body, author: 'cmoore322', tags };
     try {
-        const response = await fetch(blogDataUrl);
-        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-        blogPosts = await response.json();
-        displayBlogPosts();
-    } catch (error) {
-        document.getElementById('blogPostsList').innerHTML = '<p>Failed to load blog data.</p>';
+      if (id) {
+        await fetch(`${API}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      } else {
+        await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      }
+      form.reset();
+      document.getElementById('post-id').value = '';
+      await loadPosts();
+    } catch (err) {
+      alert('Save failed: ' + err.message);
     }
+  });
+
+  const resetBtn = document.getElementById('reset-btn');
+  if (resetBtn) resetBtn.addEventListener('click', () => { form.reset(); document.getElementById('post-id').value = ''; });
 }
 
-function displayBlogPosts() {
-    const blogPostsList = document.getElementById('blogPostsList');
-    blogPostsList.innerHTML = '';
-    let filtered = blogPosts.filter(post => {
-        const matchesSearch = post.title.toLowerCase().includes(searchTerm) ||
-                              post.content.toLowerCase().includes(searchTerm);
-        const matchesTag = !filterTag || (post.tags && post.tags.some(tag => tag.toLowerCase().includes(filterTag)));
-        return matchesSearch && matchesTag;
-    });
-    filtered.sort((a, b) => {
-        if (sortOption === 'date-desc') return b.date.localeCompare(a.date);
-        if (sortOption === 'date-asc') return a.date.localeCompare(b.date);
-        if (sortOption === 'title-asc') return a.title.localeCompare(b.title);
-        if (sortOption === 'title-desc') return b.title.localeCompare(a.title);
-        return 0;
-    });
-    if (filtered.length === 0) {
-        blogPostsList.innerHTML = '<p>No blog posts to display.</p>';
-        return;
-    }
-    filtered.forEach(post => {
-        const postDiv = document.createElement('div');
-        postDiv.innerHTML = `
-            <h3>${post.title}</h3>
-            <p><strong>Author:</strong> ${post.author}</p>
-            <p><strong>Date:</strong> ${post.date}</p>
-            <p>${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
-            <p><strong>Tags:</strong> ${post.tags ? post.tags.join(', ') : 'None'}</p>
-            <button class="btn btn-primary btn-sm view-btn" data-id="${post.id}">View</button>
-            <button class="btn btn-secondary btn-sm edit-btn" data-id="${post.id}">Edit</button>
-            <button class="btn btn-danger btn-sm delete-btn" data-id="${post.id}">Delete</button>
-        `;
-        blogPostsList.appendChild(postDiv);
-    });
-    document.querySelectorAll('.edit-btn').forEach(button => button.addEventListener('click', handleEditPost));
-    document.querySelectorAll('.delete-btn').forEach(button => button.addEventListener('click', handleDeletePost));
-    document.querySelectorAll('.view-btn').forEach(button => button.addEventListener('click', handleViewPost));
+async function loadPosts() {
+  const list = document.getElementById('posts-list');
+  if (!list) return;
+  list.innerHTML = '<div class="p-3 text-center">Loading...</div>';
+  try {
+    const res = await fetch(API);
+    if (!res.ok) throw new Error('Fetch failed');
+    const posts = await res.json();
+    renderPosts(posts || []);
+  } catch (err) {
+    list.innerHTML = '<div class="p-3 text-danger">Error loading posts</div>';
+  }
 }
 
-function handleAddPost(event) {
-    event.preventDefault();
-    const title = document.getElementById('postTitle').value;
-    const author = document.getElementById('postAuthor').value;
-    const date = document.getElementById('postDate').value;
-    const content = document.getElementById('postContent').value;
-    const tags = document.getElementById('postTags').value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-    const newPost = {
-        id: String(Date.now()),
-        title,
-        author,
-        date,
-        content,
-        tags
-    };
-    blogPosts.push(newPost);
-    displayBlogPosts();
-    document.getElementById('addPostForm').reset();
-    alert('Post added! (Note: Changes are not permanent)');
+function renderPosts(posts) {
+  const list = document.getElementById('posts-list');
+  list.innerHTML = '';
+  if (!posts || posts.length === 0) { list.innerHTML = '<div class="p-3">No posts yet.</div>'; return; }
+
+  posts.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'list-group-item';
+    el.innerHTML = `
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">${escapeHtml(p.title)}</h5>
+        <small>${new Date(p.createdAt).toLocaleString()}</small>
+      </div>
+      <p class="mb-1">${escapeHtml(truncate(p.body, 200))}</p>
+      <div>${(p.tags || []).map(t => `<span class="badge bg-secondary me-1">${escapeHtml(t)}</span>`).join('')}</div>
+      <div class="mt-2">
+        <button class="btn btn-sm btn-primary me-1" data-id="${p._id}" data-action="view">View</button>
+        <button class="btn btn-sm btn-secondary me-1" data-id="${p._id}" data-action="edit">Edit</button>
+        <button class="btn btn-sm btn-danger" data-id="${p._id}" data-action="delete">Delete</button>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+
+  list.querySelectorAll('button').forEach(b => b.addEventListener('click', onListAction));
 }
 
-function handleEditPost(event) {
-    const postId = event.target.dataset.id;
-    const postIndex = blogPosts.findIndex(post => post.id === postId);
-    if (postIndex !== -1) {
-        const currentPost = blogPosts[postIndex];
-        const newTitle = prompt('Enter new title:', currentPost.title);
-        if (newTitle === null) return;
-        const newAuthor = prompt('Enter new author:', currentPost.author);
-        if (newAuthor === null) return;
-        const newDate = prompt('Enter new date (YYYY-MM-DD):', currentPost.date);
-        if (newDate === null) return;
-        const newContent = prompt('Enter new content:', currentPost.content);
-        if (newContent === null) return;
-        const newTags = prompt('Enter new tags (comma-separated):', currentPost.tags ? currentPost.tags.join(', ') : '');
-        if (newTags === null) return;
-        blogPosts[postIndex] = {
-            ...currentPost,
-            title: newTitle,
-            author: newAuthor,
-            date: newDate,
-            content: newContent,
-            tags: newTags.split(',').map(tag => tag.trim()).filter(tag => tag !== '')
-        };
-        displayBlogPosts();
-        alert('Post updated! (Note: Changes are not permanent)');
-    }
+function escapeHtml(s) { if (!s) return ''; return String(s).replace(/[&<>\"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]||c)); }
+function truncate(s, n) { return s && s.length > n ? s.slice(0, n) + '...' : s || ''; }
+
+async function onListAction(e) {
+  const id = e.currentTarget.dataset.id;
+  const action = e.currentTarget.dataset.action;
+  if (action === 'view') return viewPost(id);
+  if (action === 'edit') return loadForEdit(id);
+  if (action === 'delete') {
+    if (!confirm('Delete this post?')) return;
+    try { await fetch(`${API}/${id}`, { method: 'DELETE' }); await loadPosts(); } catch (err) { alert('Delete failed: ' + err.message); }
+  }
 }
 
-function handleDeletePost(event) {
-    const postId = event.target.dataset.id;
-    if (confirm('Are you sure you want to delete this post?')) {
-        blogPosts = blogPosts.filter(post => post.id !== postId);
-        displayBlogPosts();
-        alert('Post deleted! (Note: Changes are not permanent)');
-    }
+async function viewPost(id) {
+  try {
+    const res = await fetch(`${API}/${id}`);
+    if (!res.ok) throw new Error('Not found');
+    const p = await res.json();
+    const content = `<h4>${escapeHtml(p.title)}</h4><p>${escapeHtml(p.body)}</p><p class="text-muted">By ${escapeHtml(p.author)}</p>`;
+    $('<div>').html(content).dialog({ title: 'View Post', modal: true, width: 600, close: function () { $(this).dialog('destroy').remove(); } });
+  } catch (err) { alert('View failed'); }
 }
 
-function handleViewPost(event) {
-    const postId = event.target.dataset.id;
-    const post = blogPosts.find(p => p.id === postId);
-    if (post) {
-        document.getElementById('postModalLabel').textContent = post.title;
-        document.getElementById('postModalBody').innerHTML = `
-            <p><strong>Author:</strong> ${post.author}</p>
-            <p><strong>Date:</strong> ${post.date}</p>
-            <p>${post.content}</p>
-            <p><strong>Tags:</strong> ${post.tags ? post.tags.join(', ') : 'None'}</p>
-        `;
-        const modal = new bootstrap.Modal(document.getElementById('postModal'));
-        modal.show();
-    }
+async function loadForEdit(id) {
+  try {
+    const res = await fetch(`${API}/${id}`);
+    if (!res.ok) throw new Error('Not found');
+    const p = await res.json();
+    document.getElementById('post-id').value = p._id;
+    document.getElementById('title').value = p.title;
+    document.getElementById('body').value = p.body;
+    if (!document.getElementById('tags')) { const inp = document.createElement('input'); inp.id = 'tags'; inp.className = 'form-control mt-2'; inp.placeholder = 'tags, comma-separated'; document.getElementById('post-form').insertBefore(inp, document.getElementById('save-btn')); }
+    document.getElementById('tags').value = (p.tags || []).join(', ');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) { alert('Load for edit failed'); }
 }
+

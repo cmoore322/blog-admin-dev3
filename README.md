@@ -1,3 +1,35 @@
+# Blog Admin SPA
+
+This project is a simple Single Page Application (SPA) demonstrating a full-stack CRUD app using Node.js, Express, MongoDB, and a RESTful API. It includes:
+
+- Front-end SPA (Bootstrap 5, normalize.css, jQuery, jQuery UI)
+- Back-end API (Express + Mongoose)
+- Development tooling: nodemon, dotenv
+- Deployment: Procfile provided for Render or similar PaaS
+
+Author: Chris Moore (cmoore322)
+
+Requirements
+- Node 18+
+- MongoDB (local or hosted)
+
+Local setup
+
+1. Copy `.env.example` to `.env` and set `MONGODB_URI` if needed.
+2. Install dependencies: `npm install`.
+3. Run in development with auto-reload: `npm run dev`.
+
+API
+- GET /api/posts - list posts
+- POST /api/posts - create post { title, body, author?, tags? }
+- GET /api/posts/:id - get post
+- PUT /api/posts/:id - update post
+- DELETE /api/posts/:id - delete post
+
+Notes on security and production
+- Secrets should be provided through environment variables in the host (Render, Heroku, etc.).
+- `.env` is ignored in git via `.gitignore`.
+- Helmet and CORS are enabled by default.
 # Blog Admin Dev3
 
 ## Overview
